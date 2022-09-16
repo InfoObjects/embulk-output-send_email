@@ -22,9 +22,9 @@ filters:
       - {name: attr3, type: string}
 out:
   type: send_email
-  to: abhishek.gupta@infoobjects.com
-  from: abhishek.gupta@infoobjects.com
-  password: Abhi@q421
+  to: abc@example.com
+  from: abc@example.com
+  password: XXXXX
   port: 587
   host: smtp.gmail.com
   row: 3
