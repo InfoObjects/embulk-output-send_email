@@ -1,6 +1,6 @@
 #Send email output plugin for Embulk
 
-A output plugin for Embulk to send email with data
+An output plugin for Embulk to send email with data
 
 ## Configuration
 
