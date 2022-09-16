@@ -82,7 +82,7 @@ task gemspec {
 Gem::Specification.new do |spec|
   spec.name          = "${project.name}"
   spec.version       = "${project.version}"
-  spec.authors       = ["Abhishek-Gupta4"]
+  spec.authors       = ["Infoobjects Inc."]
   spec.summary       = %[Send Email output plugin for Embulk]
   spec.description   = %[Dumps records to Send Email.]
   spec.email         = ["abhishek.gupta4@fisglobal.com"]
