@@ -1,0 +1,33 @@
+exec:
+  max_threads: 4
+  min_output_tasks: 4
+in:
+  type: file
+  path_prefix: C:\Users\Abhishek Gupta\Desktop\new one\embulk-output-send_email\calendar.csv
+  parser:
+    type: csv
+    columns:
+      - {name: dim_calendar_key, type: long}
+      - {name: year_number, type: long}
+      - {name: quarter_number, type: long }
+      - {name: attr_1, type: string }
+filters:
+  - type: split_column
+    delimiter: '|'
+    is_skip: true
+    target_key: attr_1
+    output_columns:
+      - {name: attr1, type: string}
+      - {name: attr2, type: string}
+      - {name: attr3, type: string}
+out:
+  type: send_email
+  to: abhishek.gupta@infoobjects.com
+  from: abhishek.gupta@infoobjects.com
+  password: Abhi@q421
+  port: 587
+  host: smtp.gmail.com
+  row: 3
+  filetype: html
+
+
