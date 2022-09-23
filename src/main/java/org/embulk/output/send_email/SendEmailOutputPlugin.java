@@ -16,7 +16,7 @@ public class SendEmailOutputPlugin
     public interface PluginTask
             extends Task {
 
-        @Config("filetype")
+        @Config("file_type")
         @ConfigDefault("\"json\"")
         public String getFileType();
 

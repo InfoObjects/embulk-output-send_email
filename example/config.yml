@@ -3,7 +3,7 @@ exec:
   min_output_tasks: 4
 in:
   type: file
-  path_prefix: C:\Users\Abhishek Gupta\Desktop\new one\embulk-output-send_email\calendar.csv
+  path_prefix: C:\Users\Abhishek Gupta\Desktop\github\embulk-output-send_email\calendar.csv
   parser:
     type: csv
     columns:
@@ -22,9 +22,9 @@ filters:
       - {name: attr3, type: string}
 out:
   type: send_email
-  to: abc@example.com
-  from: abc@example.com
-  password: XXXXX
+  to: abhishek.gupta@infoobjects.com
+  from: abhishek.gupta@infoobjects.com
+  password: Abhi@q421
   port: 587
   host: smtp.gmail.com
   row: 3

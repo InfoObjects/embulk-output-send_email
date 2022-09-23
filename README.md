@@ -1,4 +1,10 @@
+<p align="center">
+  <a href="https://www.infoobjects.com/" target="blank"><img src="screenshots/logo.png" width="150" alt="InfoObjects Logo" /></a>
+</p>
+<p align="center">Infoobjects is a consulting company that helps enterprises transform how and where they run applications and infrastructure.</p>
+
 #Send email output plugin for Embulk
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 An output plugin for Embulk to send email with data
 
@@ -11,7 +17,7 @@ An output plugin for Embulk to send email with data
     - **port**: Port of email (for gmail its `587`)(required)
     - **host**: Host of your email (For gmail `smtp.gmail.com`) (required)
     - **row**: How many row you want to send with email mention like 1,2,3(required)
-    - **filetype**: Mention file type like (example: json,html) (required)
+    - **file_type**: Mention file type like (example: json,html) (required)
     
 ## Example - columns
 
@@ -72,3 +78,6 @@ Release gem:
 ```
 $ ./gradlew gemPush
 ```
+## Licensing
+
+InfoObjects [license](LICENSE) (MIT License)
