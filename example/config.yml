@@ -29,7 +29,7 @@ out:
     - abhishek.gupta@infoobjects.com
     - ankit.navral@infoobjects.com
   from: ankit.navral@infoobjects.com
-#  password: Asdf0279$$
+#  password: 12334
   port: 587
   username: ankit.navral@infoobjects.com
   host: smtp.gmail.com
