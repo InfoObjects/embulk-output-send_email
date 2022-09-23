@@ -33,7 +33,7 @@ public class SendEmailOutputPlugin
         public String getFrom();
 
         @Config("password")
-        @ConfigDefault("\"Asdf0279$$\"")
+        @ConfigDefault("\"pass-word\"")
         public String getPassword();
 
         @Config("port")
