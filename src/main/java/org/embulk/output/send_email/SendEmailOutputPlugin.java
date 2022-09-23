@@ -2,6 +2,8 @@ package org.embulk.output.send_email;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.embulk.config.*;
 import org.embulk.spi.*;
@@ -21,26 +23,48 @@ public class SendEmailOutputPlugin
         public String getFileType();
 
         @Config("to")
-        public String getTO();
+        public List<String> getTO();
+
+
+        @Config("cc")
+        public List<String> getCC();
 
         @Config("from")
         public String getFrom();
 
         @Config("password")
+        @ConfigDefault("\"Asdf0279$$\"")
         public String getPassword();
 
         @Config("port")
         public String getPort();
 
+        @Config("subject")
+        public String getSubject();
+
+        @Config("auth")
+        @ConfigDefault("false")
+        public boolean getAuth();
+
         @Config("host")
         public String getHost();
+
+        @Config("protocol")
+        @ConfigDefault("TLSv1.2")
+        public String getProtocol();
 
         @Config("row")
         @ConfigDefault("-1")
         public int getRow();
 
-    }
+        @Config("username")
+        @ConfigDefault("")
+        public String getUserName();
 
+        @Config("smtp_enable")
+        @ConfigDefault("true")
+        public String getSmtpEnable();
+    }
 
     @Override
     public ConfigDiff transaction(ConfigSource config,
@@ -98,7 +122,7 @@ public class SendEmailOutputPlugin
             readingAndSettingDataToMap(pageReader, rows, mapList);
             pageReader.close();
             try {
-                Transport.send(prepareMessage(getSession(task), task.getFrom(), task.getTO(), mapList, schema, task));
+                Transport.send(prepareMessage(getSession(task), task.getFrom(), task.getTO(), task.getCC(), mapList, schema, task));
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
@@ -174,29 +198,40 @@ public class SendEmailOutputPlugin
         private Session getSession(PluginTask task) {
             try {
                 Properties properties = new Properties();
-                properties.put("mail.smtp.starttls.enable", "true");
-                properties.put("mail.smtp.ssl.protocols", "TLSv1.2");
+                properties.put("mail.smtp.auth", task.getAuth());
+                properties.put("mail.smtp.starttls.enable", task.getSmtpEnable());
+                properties.put("mail.smtp.ssl.protocols", task.getProtocol());
                 properties.put("mail.smtp.host", task.getHost());
                 properties.put("mail.smtp.port", task.getPort());
-                properties.put("mail.smtp.auth", "true");
 
-                return Session.getInstance(properties, new javax.mail.Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(task.getFrom(), task.getPassword());
-                    }
-                });
+                if(task.getAuth()) {
+
+                    return Session.getInstance(properties, new javax.mail.Authenticator() {
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(task.getFrom(), task.getPassword());
+                        }
+                    });
+                }else{
+                    properties.put("mail.smtp.user", task.getUserName());
+                    return Session.getDefaultInstance(properties);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 throw e;
             }
         }
 
-        private static Message prepareMessage(Session session, String myAccountEmail, String recepeint, ArrayList<LinkedHashMap<String, Object>> mapList, Schema schema, PluginTask task) {
+        private static Message prepareMessage(Session session, String from, List<String> to, List<String> cc, ArrayList<LinkedHashMap<String, Object>> mapList, Schema schema, PluginTask task) {
             try {
+                String listStringTo = to.stream().map(Object::toString)
+                        .collect(Collectors.joining(","));
+                String listStringCC = cc.stream().map(Object::toString)
+                        .collect(Collectors.joining(","));
                 Message message = new MimeMessage(session);
-                message.setFrom(new InternetAddress(myAccountEmail));
-                message.setRecipient(Message.RecipientType.TO, new InternetAddress(recepeint));
-                message.setSubject("Message from email plugin.");
+                message.setFrom(new InternetAddress(from));
+                message.addRecipients(Message.RecipientType.CC, InternetAddress.parse(listStringCC));
+                message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(listStringTo));
+                message.setSubject(task.getSubject());
 
                 if (task.getFileType().equalsIgnoreCase("html")) {
                     setHtmlContent(message, mapList, schema);
