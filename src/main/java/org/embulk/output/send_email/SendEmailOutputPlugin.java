@@ -12,6 +12,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.validation.constraints.Null;
+
+import static ch.qos.logback.core.joran.action.ActionConst.NULL;
 
 public class SendEmailOutputPlugin
         implements OutputPlugin {
@@ -27,13 +30,14 @@ public class SendEmailOutputPlugin
 
 
         @Config("cc")
+        @ConfigDefault("[]")
         public List<String> getCC();
 
         @Config("from")
         public String getFrom();
 
         @Config("password")
-        @ConfigDefault("\"pass-word\"")
+        @ConfigDefault("\"password\"")
         public String getPassword();
 
         @Config("port")
@@ -50,7 +54,7 @@ public class SendEmailOutputPlugin
         public String getHost();
 
         @Config("protocol")
-        @ConfigDefault("TLSv1.2")
+        @ConfigDefault("\"TLSv1.2\"")
         public String getProtocol();
 
         @Config("row")
@@ -200,6 +204,7 @@ public class SendEmailOutputPlugin
                 Properties properties = new Properties();
                 properties.put("mail.smtp.auth", task.getAuth());
                 properties.put("mail.smtp.starttls.enable", task.getSmtpEnable());
+
                 properties.put("mail.smtp.ssl.protocols", task.getProtocol());
                 properties.put("mail.smtp.host", task.getHost());
                 properties.put("mail.smtp.port", task.getPort());
@@ -223,13 +228,18 @@ public class SendEmailOutputPlugin
 
         private static Message prepareMessage(Session session, String from, List<String> to, List<String> cc, ArrayList<LinkedHashMap<String, Object>> mapList, Schema schema, PluginTask task) {
             try {
+                String listStringCC=null;
                 String listStringTo = to.stream().map(Object::toString)
                         .collect(Collectors.joining(","));
-                String listStringCC = cc.stream().map(Object::toString)
-                        .collect(Collectors.joining(","));
+                if(!(cc.size() ==0)) {
+                     listStringCC = cc.stream().map(Object::toString)
+                            .collect(Collectors.joining(","));
+                }
                 Message message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(from));
-                message.addRecipients(Message.RecipientType.CC, InternetAddress.parse(listStringCC));
+                if(listStringCC!=null) {
+                    message.addRecipients(Message.RecipientType.CC, InternetAddress.parse(listStringCC));
+                }
                 message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(listStringTo));
                 message.setSubject(task.getSubject());
 
