@@ -51,6 +51,7 @@ public class SendEmailOutputPlugin
         public boolean getAuth();
 
         @Config("host")
+        @ConfigDefault("\"smtp.gmail.com\"")
         public String getHost();
 
         @Config("protocol")
