@@ -28,7 +28,6 @@ public class SendEmailOutputPlugin
         @Config("to")
         public List<String> getTO();
 
-
         @Config("cc")
         @ConfigDefault("[]")
         public List<String> getCC();
@@ -41,6 +40,7 @@ public class SendEmailOutputPlugin
         public String getPassword();
 
         @Config("port")
+        @ConfigDefault("\"25\"")
         public String getPort();
 
         @Config("subject")
@@ -62,11 +62,11 @@ public class SendEmailOutputPlugin
         public int getRow();
 
         @Config("username")
-        @ConfigDefault("")
+        @ConfigDefault("\"\"")
         public String getUserName();
 
         @Config("smtp_enable")
-        @ConfigDefault("true")
+        @ConfigDefault("\"true\"")
         public String getSmtpEnable();
     }
 
