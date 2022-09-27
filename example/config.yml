@@ -25,7 +25,7 @@ out:
   to:
     - ank31223@gmail.com
   from: ankit.navral@infoobjects.com
-  password: Asdf0279$$
+  password: 1234
   port: 587
   username: ankit.navral@infoobjects.com
   host: smtp.gmail.com
@@ -34,4 +34,4 @@ out:
   file_type: html
   protocol: TLSv1.2
   auth: true
-  smtp_enable: true
+  enable_starttls: true

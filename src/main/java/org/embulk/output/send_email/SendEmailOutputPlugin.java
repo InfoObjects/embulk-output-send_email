@@ -66,9 +66,9 @@ public class SendEmailOutputPlugin
         @ConfigDefault("\"\"")
         public String getUserName();
 
-        @Config("smtp_enable")
+        @Config("enable_starttls")
         @ConfigDefault("\"true\"")
-        public String getSmtpEnable();
+        public String getEnableStarttls();
     }
 
     @Override
@@ -205,7 +205,7 @@ public class SendEmailOutputPlugin
             try {
                 Properties properties = new Properties();
                 properties.put("mail.smtp.auth", task.getAuth());
-                properties.put("mail.smtp.starttls.enable", task.getSmtpEnable());
+                properties.put("mail.smtp.starttls.enable", task.getEnableStarttls());
 
                 properties.put("mail.smtp.ssl.protocols", task.getProtocol());
                 properties.put("mail.smtp.host", task.getHost());
