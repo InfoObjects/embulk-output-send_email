@@ -76,6 +76,7 @@ public class SendEmailOutputPlugin
                                   Schema schema, int taskCount,
                                   OutputPlugin.Control control) {
         PluginTask task = config.loadConfig(PluginTask.class);
+        System.out.println(task);
         control.run(task.dump());
         return Exec.newConfigDiff();
     }
@@ -263,8 +264,13 @@ public class SendEmailOutputPlugin
                 BodyPart messageBodyPart = new MimeBodyPart();
                 StringBuilder email = new StringBuilder();
 
-                email.append("<!DOCTYPE html><html><body>"
-                        + "<table style='border:1px solid #96D4D4;border-collapse: collapse;width: 100%'>");
+                email.append("<!DOCTYPE html><html><body>");
+                email.append("<p>Hello Team,</p>");
+                email.append("<header>\n" +
+                        "    <h3>This is the daily ETL Report</h3>\n" +
+                        "</header>");
+
+                email.append("<table style='border:1px solid #96D4D4;border-collapse: collapse;width: 100%'>");
 
                 email.append("<tr>");
                 for (int i = 0; i < schema.size(); i++) {
@@ -284,7 +290,12 @@ public class SendEmailOutputPlugin
                     }
                     email.append("<tr>");
                 }
-                email.append("</table></body></html>");
+                email.append("</table>");
+                email.append("<footer>\n" +
+                        "  <p>Thanks</p>\n" +
+                        "  <p>By ETL process</p>\n" +
+                        "</footer>");
+                email.append("</body></html>");
 
                 messageBodyPart.setContent(email.toString(), "text/html");
                 multipart.addBodyPart(messageBodyPart);

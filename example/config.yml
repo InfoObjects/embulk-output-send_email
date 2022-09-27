@@ -3,7 +3,7 @@ exec:
   min_output_tasks: 4
 in:
   type: file
-  path_prefix: C:\Users\Abhishek Gupta\Desktop\github\embulk-output-send_email\calendar.csv
+  path_prefix: C:\Users\AnkitKumar\Desktop\embulk-output-send_email\calendar.csv
   parser:
     type: csv
     columns:
@@ -23,18 +23,15 @@ filters:
 out:
   type: send_email
   to:
-    - ankit.kumar@infoobjects.com
-    - abhishek.gupta@infoobjects.com
-  from: abhishek.gupta@infoobjects.com
-  password: 11234
+    - ank31223@gmail.com
+  from: ankit.navral@infoobjects.com
+  password: Asdf0279$$
   port: 587
-  username: abhishek.gupta@infoobjects.com
+  username: ankit.navral@infoobjects.com
   host: smtp.gmail.com
   subject: XYZ123
-#  row: 3
+  #  row: 3
   file_type: html
   protocol: TLSv1.2
   auth: true
   smtp_enable: true
-
-
