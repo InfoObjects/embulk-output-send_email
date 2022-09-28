@@ -23,15 +23,15 @@ filters:
 out:
   type: send_email
   to:
-    - ankit.navral@infoobjects.com
-    - ankit.kumar@infoobjects.com
-  from: abhishek.gupta@infoobjects.com
-  password: Abhi@q421
+    - abc@gmail.com
+    - def@gmail.com
+  from: pqr@gmail.com
+  password: password
   port: 587
-  username: abhishek.gupta@infoobjects.com
+  username: pqr@gmail.com
   host: smtp.gmail.com
   subject: XYZ123
-  #  row: 3
+  row: 3
   format_type: html
   protocol: TLSv1.2
   auth: true
