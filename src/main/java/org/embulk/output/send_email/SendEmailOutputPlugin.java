@@ -1,29 +1,30 @@
 package org.embulk.output.send_email;
 
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.embulk.config.*;
 import org.embulk.spi.*;
+import org.jsoup.Jsoup;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.validation.constraints.Null;
-
-import static ch.qos.logback.core.joran.action.ActionConst.NULL;
 
 public class SendEmailOutputPlugin
         implements OutputPlugin {
     public interface PluginTask
             extends Task {
 
-        @Config("file_type")
+        @Config("format_type")
         @ConfigDefault("\"json\"")
-        public String getFileType();
+        public String getFormatType();
 
         @Config("to")
         public List<String> getTO();
@@ -65,6 +66,14 @@ public class SendEmailOutputPlugin
         @Config("username")
         @ConfigDefault("\"\"")
         public String getUserName();
+
+        @Config("template")
+        @ConfigDefault("\"\"")
+        public String getEmailTemplate();
+
+        @Config("is_html")
+        @ConfigDefault("false")
+        public boolean getIsHTML();
 
         @Config("enable_starttls")
         @ConfigDefault("\"true\"")
@@ -244,17 +253,138 @@ public class SendEmailOutputPlugin
                 }
                 message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(listStringTo));
                 message.setSubject(task.getSubject());
-
-                if (task.getFileType().equalsIgnoreCase("html")) {
-                    setHtmlContent(message, mapList, schema);
-                } else if (task.getFileType().equalsIgnoreCase("json")) {
-                    setJsonContent(message, mapList, schema);
+                if(task.getEmailTemplate().length()!=0){
+                    if(task.getIsHTML()) {
+                        setEmailTemplate(message, mapList, schema, task);
+                    }else{
+                        setTextContent(message,mapList,schema,task);
+                    }
+                }else{
+                    if (task.getFormatType().equalsIgnoreCase("html")) {
+                        setHtmlContent(message,mapList,schema);
+                    } else if (task.getFormatType().equalsIgnoreCase("json")) {
+                        setJsonContent(message, mapList, schema);
+                    }
                 }
                 return message;
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             }
+        }
+
+        private static void setEmailTemplate(Message message, ArrayList<LinkedHashMap<String, Object>> mapList, Schema schema,PluginTask task) {
+
+            try {
+                MimeMultipart multipart = new MimeMultipart();
+                BodyPart messageBodyPart = new MimeBodyPart();
+                StringBuilder email = new StringBuilder();
+                StringBuilder email1= new StringBuilder();
+
+                email.append("<table style='border:1px solid #96D4D4;border-collapse: collapse;width: 100%'>");
+                email.append("<tr>");
+                for (int i = 0; i < schema.size(); i++) {
+                    email.append("<th style='border:2px solid black; border-collapse: collapse;border-color: #96D4D4'>");
+                    email.append(schema.getColumn(i).getName().split("/")[0]);
+                    email.append("</th>");
+                }
+                email.append("</tr>");
+
+                for (int i = 0; i < mapList.size(); i++) {
+                    Map<String, Object> map = mapList.get(i);
+                    email.append("<tr >");
+                    for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        email.append("<td style='border:1px solid black;border-collapse: collapse;text-align:center;border-color: #96D4D4'>");
+                        email.append(entry.getValue());
+                        email.append("</td>");
+                    }
+                    email.append("<tr>");
+                }
+                email.append("</table>");
+                email.append("<br>");
+                String s=null;
+                try {
+                    File sourceFile = new File(task.getEmailTemplate());
+                    org.jsoup.nodes.Document doc = Jsoup.parse(sourceFile, "UTF-8");
+                    org.jsoup.nodes.Element elements = doc.body();
+                    s=StringUtils.replace(String.valueOf(elements),"{{data}}",email.toString());
+
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                email1.append(s);
+                messageBodyPart.setContent(email1.toString(), "text/html");
+                multipart.addBodyPart(messageBodyPart);
+                message.setContent(multipart);
+            } catch (Exception e) {
+                System.out.println("Not able to send data");
+                throw new RuntimeException(e);
+            }
+
+        }
+        private static void setTextContent(Message message, ArrayList<LinkedHashMap<String, Object>> mapList, Schema schema,PluginTask task) {
+
+            try {
+                MimeMultipart multipart = new MimeMultipart();
+                BodyPart messageBodyPart = new MimeBodyPart();
+                StringBuilder email = new StringBuilder();
+
+                StringBuilder email1 = new StringBuilder();
+
+                email.append("\n");
+                email.append("\n");
+                for (int i = 0; i < schema.size(); i++) {
+                    email.append(schema.getColumn(i).getName().split("/")[0]);
+                    email.append(",");
+                }
+                email.append("\n");
+
+                for (int i = 0; i < mapList.size(); i++) {
+                    Map<String, Object> map = mapList.get(i);
+                    email.append("\n");
+                    for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        email.append(entry.getValue());
+                        email.append(",");
+                    }
+                    email.append("\n");
+                }
+
+                String s=null;
+                try {
+                    File sourceFile = new File(task.getEmailTemplate());
+                    org.jsoup.nodes.Document doc = Jsoup.parse(sourceFile, "UTF-8");
+                    String elements = doc.text();
+                    s=StringUtils.replace(String.valueOf(elements),"{{data}}",email.toString());
+
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+               // email1.append("\n");
+                email1.append(s);
+                email1.append("\n");
+                messageBodyPart.setText(email1.toString());
+                multipart.addBodyPart(messageBodyPart);
+                message.setContent(multipart);
+            } catch (Exception e) {
+                System.out.println("Not able to send data");
+                throw new RuntimeException(e);
+            }
+
+        }
+
+        private static void setJsonContent(Message message, ArrayList<LinkedHashMap<String, Object>> mapList, Schema schema) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String value = null;
+                value = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(mapList);
+                message.setText(value);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+
         }
 
         private static void setHtmlContent(Message message, ArrayList<LinkedHashMap<String, Object>> mapList, Schema schema) {
@@ -306,20 +436,6 @@ public class SendEmailOutputPlugin
             }
 
         }
-
-        private static void setJsonContent(Message message, ArrayList<LinkedHashMap<String, Object>> mapList, Schema schema) {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                String value = null;
-                value = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(mapList);
-                message.setText(value);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-
-        }
-
         @Override
         public void finish() {
 

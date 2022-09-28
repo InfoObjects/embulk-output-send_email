@@ -1,0 +1,7 @@
+Hi John,
+Here is the daily ETL data
+
+{{data}}
+
+Thanks,
+Utkarsh
